@@ -20,8 +20,8 @@ new_sheet = wb_attendance.create_sheet(today)
 
 # Capture total names and details (assuming data starts from row 1)
 source_sheet = wb_source['Data']
-total_names = source_sheet.max_column
-total_details = source_sheet.max_row
+total_details = source_sheet.max_column
+total_names = source_sheet.max_row
 
 # Copy names to new sheet (first column)
 for row in range(1, total_details + 1):
@@ -39,6 +39,12 @@ for row in range(1, total_details + 1):
         source_cell = source_sheet.cell(row=row, column=col)
         dest_cell = wb_attendance['Data'].cell(row=row, column=col)
         dest_cell.value = source_cell.value
+
+# Create an array of names for JavaScript 
+name_array = []
+for row in range(2, total_names + 1):
+    name_array.append(source_sheet.cell(row=row, column=1).value)
+    
 
 # Save the attendance workbook
 wb_attendance.save(wb_path)
