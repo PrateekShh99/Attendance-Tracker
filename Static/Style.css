@@ -1,4 +1,29 @@
 *{
     padding: 0;
     border: 0;
+
+}
+
+.people-container {
+    display: grid;
+    justify-content: center;
+}
+
+.person-info {
+    display: flex;
+    border: 2px black solid;
+    width: 75vh;
+    padding-top: 5px;
+    padding-left: 10px;
+    border-radius: 15px;
+    align-items: center;
+}
+
+.person-name {
+    background-color: aqua;
+}
+
+.attendance-radio {
+    display: flex;
+    justify-content: end;
 }
