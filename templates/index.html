@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='Style.css') }}">
+</head>
+<body>
+    <h1>Attendance Tracker</h1>
+    <form id="attendanceForm" class="attendance-form">
+        <section id="section" class="people-section">
+            <div id="peopleContainer" class="people-container">
+                {% for person in people %}
+                    <div class="person-info">
+                        <h3 class="person-name">{{ person }}</h3>
+                        <input type="radio" name="{{ person }}" value="present" class="attendance-radio"> Present
+                        <input type="radio" name="{{ person }}" value="absent" class="attendance-radio"> Absent
+                        <input type="radio" name="{{ person }}" value="leave" class="attendance-radio"> Leave
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+        <button type="submit" class="submit-btn">Submit</button>
+    </form>
+
+    <script src="{{ url_for('static', filename='JavaScript.js') }}"></script>
+</body>
+</html>
