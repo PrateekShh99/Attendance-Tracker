@@ -14,9 +14,11 @@
                 {% for person in people %}
                     <div class="person-info">
                         <h3 class="person-name">{{ person }}</h3>
-                        <input type="radio" name="{{ person }}" value="present" class="attendance-radio"> Present
-                        <input type="radio" name="{{ person }}" value="absent" class="attendance-radio"> Absent
-                        <input type="radio" name="{{ person }}" value="leave" class="attendance-radio"> Leave
+                        <div class="attendance-options">
+                            <input type="radio" name="{{ person }}" value="present" class="attendance-radio"> Present
+                            <input type="radio" name="{{ person }}" value="absent" class="attendance-radio"> Absent
+                            <input type="radio" name="{{ person }}" value="leave" class="attendance-radio"> Leave
+                        </div>
                     </div>
                 {% endfor %}
             </div>
