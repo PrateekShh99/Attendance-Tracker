@@ -1,8 +1,15 @@
+from flask import Flask, render_template, request, jsonify
 import openpyxl
 import datetime
+import os
+
+app = Flask(__name__)
+
+# Set paths
+wb_path = os.path.join(os.path.dirname(__file__), 'Attendance.xlsx')
+source_path = os.path.join(os.path.dirname(__file__), 'Datasheet.xlsx')
 
 # Create and save the workbook if it doesn't exist
-wb_path = "C:\\Programming\\Attendance\\Attendance.xlsx"
 try:
     wb_attendance = openpyxl.load_workbook(wb_path)
 except FileNotFoundError:
@@ -10,41 +17,61 @@ except FileNotFoundError:
     wb_attendance.save(wb_path)
     wb_attendance.close()
 
-# Load source and destination workbooks
-wb_source = openpyxl.load_workbook('C:\\Programming\\Attendance\\Datasheet.xlsx')
-wb_attendance = openpyxl.load_workbook(wb_path)
-
-# Generate new sheet for every new day
-today = datetime.datetime.now().strftime("%d-%m-%y")
-new_sheet = wb_attendance.create_sheet(today)
-
-# Capture total names and details (assuming data starts from row 1)
+# Load source wb
+wb_source = openpyxl.load_workbook(source_path)
 source_sheet = wb_source['Data']
-total_details = source_sheet.max_column
-total_names = source_sheet.max_row
 
-# Copy names to new sheet (first column)
-for row in range(1, total_details + 1):
-    source_cell = source_sheet.cell(row=row, column=1)
-    dest_cell = new_sheet.cell(row=row, column=1)
-    dest_cell.value = source_cell.value
+@app.route('/')
+def index():
+    return render_template('index.html', people=get_names())
 
-# Ensure the 'Data' sheet exists in the attendance workbook
-if 'Data' not in wb_attendance.sheetnames:
-    wb_attendance.create_sheet(index=0, title='Data')
+@app.route('/submit', methods=['POST'])
+def submit():
+    data = request.json
+    attendance_array = data.get('attendance', [])
 
-# Copy entire source sheet to the 'Data' sheet in the attendance workbook
-for row in range(1, total_details + 1):
-    for col in range(1, total_names + 1):
-        source_cell = source_sheet.cell(row=row, column=col)
-        dest_cell = wb_attendance['Data'].cell(row=row, column=col)
-        dest_cell.value = source_cell.value
+    # Set up paths again (in case new file created)
+    wb_path = os.path.join(os.path.dirname(__file__), 'Attendance.xlsx')
 
-# Create an array of names for JavaScript 
-name_array = []
-for row in range(2, total_names + 1):
-    name_array.append(source_sheet.cell(row=row, column=1).value)
-    
+    # Load attendance wb
+    wb_attendance = openpyxl.load_workbook(wb_path)
+    today = datetime.datetime.now().strftime("%d-%m-%y")
+    new_sheet = get_or_create_sheet(wb_attendance, today)
 
-# Save the attendance workbook
-wb_attendance.save(wb_path)
+    # update attendance data
+    for i, attendance in enumerate(attendance_array, start=2):
+        new_sheet.cell(row=i, column=2, value=attendance)
+
+    # Save the attendance workbook
+    wb_attendance.save(wb_path)
+    return jsonify({"status": "success", "attendance_array": attendance_array})
+
+def get_names():
+    # update total names and details
+    total_details = source_sheet.max_column
+    total_names = source_sheet.max_row
+
+    # Copy names
+    name_array = []
+    for row in range(2, total_names + 1):
+        name_array.append(source_sheet.cell(row=row, column=1).value)
+
+    return name_array
+
+def get_or_create_sheet(workbook, sheet_name):
+    if sheet_name not in workbook.sheetnames:
+        new_sheet = workbook.create_sheet(sheet_name)
+        total_names = len(get_names())
+
+        # Copy names to new sheet
+        for row in range(2, total_names + 2):
+            source_cell = source_sheet.cell(row=row, column=1)
+            dest_cell = new_sheet.cell(row=row, column=1)
+            dest_cell.value = source_cell.value
+    else:
+        new_sheet = workbook[sheet_name]
+
+    return new_sheet
+
+if __name__ == '__main__':
+    app.run(debug=True)
