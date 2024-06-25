@@ -17,7 +17,7 @@ except FileNotFoundError:
     wb_attendance.save(wb_path)
     wb_attendance.close()
 
-# Load source wb
+# Load source workbook
 wb_source = openpyxl.load_workbook(source_path)
 source_sheet = wb_source['Data']
 
@@ -33,21 +33,21 @@ def submit():
     # Set up paths again (in case new file created)
     wb_path = os.path.join(os.path.dirname(__file__), 'Attendance.xlsx')
 
-    # Load attendance wb
+    # Load attendance workbook
     wb_attendance = openpyxl.load_workbook(wb_path)
     today = datetime.datetime.now().strftime("%d-%m-%y")
     new_sheet = get_or_create_sheet(wb_attendance, today)
 
-    # update attendance data
+    # Update attendance data
     for i, attendance in enumerate(attendance_array, start=2):
-        new_sheet.cell(row=i, column=2, value=attendance)
+        new_sheet.cell(row=i, column=2, value=attendance['value'])
 
     # Save the attendance workbook
     wb_attendance.save(wb_path)
     return jsonify({"status": "success", "attendance_array": attendance_array})
 
 def get_names():
-    # update total names and details
+    # Update total names and details
     total_details = source_sheet.max_column
     total_names = source_sheet.max_row
 

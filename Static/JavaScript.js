@@ -3,7 +3,7 @@ document.getElementById('attendanceForm').addEventListener('submit', function(ev
     const checkedRadios = document.querySelectorAll('input[type="radio"]:checked');
     const attendanceArray = [];
     checkedRadios.forEach(radio => {
-        attendanceArray.push(radio.value);
+        attendanceArray.push({ name: radio.name, value: radio.value });
     });
 
     fetch('/submit', {
@@ -16,17 +16,19 @@ document.getElementById('attendanceForm').addEventListener('submit', function(ev
 });
 
 window.onload = function() {
-    let radios = document.getElementsById('attendanceForm');
-    let isSelected = false;
-
-    for (let radio of radios) {
-        if (radio.checked) {
-            isSelected = true;
-            break;
+    const peopleSections = document.querySelectorAll('.person-info');
+    peopleSections.forEach(section => {
+        const radios = section.querySelectorAll('input[type="radio"]');
+        let isSelected = false;
+        
+        radios.forEach(radio => {
+            if (radio.checked) {
+                isSelected = true;
+            }
+        });
+        
+        if (!isSelected && radios.length > 0) {
+            radios[0].checked = true;
         }
-    }
-
-    if (!isSelected) {
-        radios[0].checked = true;
-    }
+    });
 }
